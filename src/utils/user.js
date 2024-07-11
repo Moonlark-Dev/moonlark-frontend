@@ -1,6 +1,6 @@
 import { getCookie, setCookie } from "@/utils/cookie.js";
 
-export const BASE_URL = "https://moonlark-api.itcdt.top/rankings/quick_math_record"
+export const BASE_URL = "https://moonlark-api.itcdt.top/api"
 
 export function getSessionID() {
     return getCookie("sessionID");
