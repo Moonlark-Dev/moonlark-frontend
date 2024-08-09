@@ -1,7 +1,8 @@
 <script setup>
 import { setTheme } from 'mdui/functions/setTheme.js';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { setCookie, getCookie } from '@/utils/cookie';
 
 const darkMode = ref(true);
 const activatedItem = ref("home");
@@ -11,9 +12,16 @@ const router = useRouter();
 
 function changeTheme(dark) {
     darkMode.value = dark;
-    setTheme(dark ? "dark" : "light");
+    let theme = dark ? "dark" : "light";
+    setTheme(theme);
+    setCookie("theme", theme);
 }
 
+onMounted(() => {
+    if (getCookie("theme") === "light") {
+        changeTheme(false);
+    }
+})
 
 function changePage(page) {
     activatedItem.value = page;
@@ -26,7 +34,7 @@ function changePage(page) {
 <template>
     <mdui-navigation-rail v-if="!props.isMobile" :value="activatedItem" divider>
         <mdui-button-icon slot="top">
-            <mdui-avatar src="https://moonlark-wiki.itcdt.top/w/images/f/f8/Moonlark.png"></mdui-avatar>
+            <mdui-avatar src="https://moonlark-wiki.itcdt.top//images/f/f8/Moonlark.png"></mdui-avatar>
         </mdui-button-icon>
         <mdui-fab lowered icon="people--outlined" value="user" @click="changePage('user')" slot="top"></mdui-fab>
 
