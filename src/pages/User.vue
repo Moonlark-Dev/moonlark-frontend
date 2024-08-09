@@ -13,6 +13,7 @@ onMounted(async () => {
     user.value = await getCurrentUser();
 })
 
+
 function logoutEvent() {
     logout();
     router.push('/login');
@@ -66,6 +67,8 @@ function logoutEvent() {
         </table>
     </div>
     <p></p>
+    <mdui-button icon="manage_accounts" end-icon="arrow_forward" @click="router.push('/settings#user')">用户账户设置</mdui-button>
+    &nbsp;
     <mdui-button icon="logout" end-icon="arrow_forward" @click="logoutEvent">退出登录</mdui-button>
 </template>
 

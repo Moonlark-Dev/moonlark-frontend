@@ -20,6 +20,16 @@ export async function isLoggedIn() {
     return response.ok;
 }
 
+export async function requestBindMainAccount(mainUserID) {
+    let response = await fetch(BASE_URL + `/users/${mainUserID}/sub-account/bind`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + getSessionID()
+        }
+    });
+    return (await response.json()).activate_code;
+}
 
 export async function login(user_id) {
     let response = await fetch(BASE_URL + "/login", {

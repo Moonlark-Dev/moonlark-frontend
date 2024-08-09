@@ -9,12 +9,14 @@ import Home from './pages/Home.vue';
 import User from './pages/User.vue';
 import Login from './pages/Login.vue';
 import { createRouter, createWebHistory } from 'vue-router';
+import Settings from './pages/Settings.vue';
 
 
 const routes = [
   { path: '/', component: Home },
   { path: '/user', component: User },
-  { path: '/login', component: Login }
+  { path: '/login', component: Login },
+  { path: '/settings', component: Settings }
 ]
 
 const router = createRouter({
