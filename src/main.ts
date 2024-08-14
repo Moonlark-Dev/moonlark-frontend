@@ -1,7 +1,6 @@
 import 'mdui/mdui.css';
 import 'mdui';
 import "./styles/index.scss";
-
 import { createApp } from 'vue';
 import App from './App.vue';
 import { setColorScheme } from 'mdui/functions/setColorScheme';
