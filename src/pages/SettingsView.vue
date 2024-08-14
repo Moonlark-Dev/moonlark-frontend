@@ -37,8 +37,7 @@ function logoutEvent() {
 		<p>当前登录: {{ user?.nickname }}</p>
 		<h3>绑定母帐号</h3>
 		<div class="form" v-if="!binaActivateCode">
-			<mdui-text-field label="帐号ID" :value="mainAccountID" @input="mainAccountID = $event.target.value"
-							 clearable></mdui-text-field>
+			<mdui-text-field label="帐号ID" :value="mainAccountID" @input="mainAccountID = $event.target.value" clearable></mdui-text-field>
 			<p></p>
 			<mdui-button @click="bindMainAccount()">绑定</mdui-button>
 		</div>

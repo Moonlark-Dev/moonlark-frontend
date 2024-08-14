@@ -48,17 +48,11 @@ function changePage(page: string) {
 		</mdui-navigation-rail-item>
 		<mdui-navigation-rail-item icon="list--outlined" value="rankings" @click="changePage('rankings')">排行
 		</mdui-navigation-rail-item>
-		
-		<mdui-button-icon v-if="user" icon="settings--outlined" @click="changePage('settings')"
-						  slot="bottom"></mdui-button-icon>
-		<mdui-button-icon icon="source--outlined" slot="bottom" href="https://github.com/Moonlark-Dev/Moonlark"
-						  target="_blank"></mdui-button-icon>
-		<mdui-button-icon @click="changeTheme(false)" v-if="darkMode" icon="dark_mode--outlined"
-						  slot="bottom"></mdui-button-icon>
-		<mdui-button-icon @click="changeTheme(true)" v-else icon="light_mode--outlined"
-						  slot="bottom"></mdui-button-icon>
+		<mdui-button-icon v-if="user" icon="settings--outlined" @click="changePage('settings')" slot="bottom"></mdui-button-icon>
+		<mdui-button-icon icon="source--outlined" slot="bottom" href="https://github.com/Moonlark-Dev/Moonlark" target="_blank"></mdui-button-icon>
+		<mdui-button-icon @click="changeTheme(false)" v-if="darkMode" icon="dark_mode--outlined" slot="bottom"></mdui-button-icon>
+		<mdui-button-icon @click="changeTheme(true)" v-else icon="light_mode--outlined" slot="bottom"></mdui-button-icon>
 	</mdui-navigation-rail>
-	
 	<mdui-navigation-bar v-else :value="activatedItem" scroll-behavior="hide">
 		<mdui-navigation-bar-item icon="home--outlined" value="home" @click="changePage('')">主页
 		</mdui-navigation-bar-item>

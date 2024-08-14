@@ -13,6 +13,7 @@ module.exports = {
     },
     rules: {
         'vue/no-deprecated-slot-attribute': 'off',
+        'vue/comment-directive': 'off',
         'no-return-assign': 'off',
         'eqeqeq': 'off',
         'semi': ["error", "always"],

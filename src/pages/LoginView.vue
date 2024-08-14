@@ -41,8 +41,7 @@ onUnmounted(() => {
 <template>
 	<h1>登录</h1>
 	<div v-if="step === 0" :class="{ form: !props.isMobile }">
-		<mdui-text-field label="用户ID" :value="userID" @input="userID = $event.target.value"
-						 clearable></mdui-text-field>
+		<mdui-text-field label="用户ID" :value="userID" @input="userID = $event.target.value" clearable></mdui-text-field>
 		<p></p>
 		<mdui-button @click="getActivateCode()">确认</mdui-button>
 	</div>

@@ -6,7 +6,10 @@
         "src/**/*.vue"
     ],
     "compilerOptions": {
-        "lib": ["ESNext", "DOM"],
+        "lib": [
+            "ESNext",
+            "DOM"
+        ],
         "baseUrl": ".",
         "paths": {
             "@/*": [
