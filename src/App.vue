@@ -1,6 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue';
-import Navigation from './components/Navbar.vue';
+import Navigation from './components/NavbarComponent.vue';
 import { RouterView } from 'vue-router';
 
 const isMobile = ref(false);
@@ -12,14 +12,14 @@ function updateWindowWidth() {
 onMounted(() => {
     window.addEventListener('resize', updateWindowWidth);
     updateWindowWidth();
-})
+});
 onUnmounted(() => {
-    window.removeEventListener('resize', updateWindowWidth)
-})
+    window.removeEventListener('resize', updateWindowWidth);
+});
 </script>
 
 <template>
-    <Navigation @pageChanged="(target) => { page = target }" :isMobile="isMobile" />
+    <Navigation :isMobile="isMobile"/>
     <main class="container">
         <RouterView />
     </main>

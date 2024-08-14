@@ -1,18 +1,15 @@
-<script setup>
-import { getCurrentUser, isLoggedIn, logout } from '@/utils/user';
+<script setup lang="ts">
+import { getCurrentUser, isLoggedIn, logout, type UserData } from '@/utils/user';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-const user = ref({});
+const user = ref<UserData>();
 const router = useRouter();
 
 onMounted(async () => {
-    if (!await isLoggedIn()) {
-        router.push('/login');
-    }
+    if (!await isLoggedIn()) await router.push('/login');
     user.value = await getCurrentUser();
-})
-
+});
 
 function logoutEvent() {
     logout();
@@ -21,47 +18,47 @@ function logoutEvent() {
 </script>
 
 <template>
+	<div v-if="user">
     <h2>用户</h2>
     <table>
         <tbody>
             <tr>
                 <td>当前登陆:</td>
-                <td>{{ user.nickname }} ({{ user.user_id }})</td>
+                <td>{{ user!!.nickname }} ({{ user!!.user_id }})</td>
             </tr>
             <tr>
                 <td>VimCoin:</td>
-                <td>{{ user.vimcoin }}</td>
+                <td>{{ user!!.vimcoin }}</td>
             </tr>
             <tr>
                 <td>等级:</td>
-                <td>{{ user.level }} ({{ user.experience - (user.level - 1) ** 3 }} / {{ user.level ** 3 - (user.level -
-                    1) ** 3 }})</td>
+                <td>{{ user!!.level }} ({{ user!!.experience - (user!!.level - 1) ** 3 }} / {{ user!!.level ** 3 - (user!!.level - 1) ** 3 }})</td>
             </tr>
             <tr>
                 <td>好感度</td>
-                <td>{{ user.favorability }}</td>
+                <td>{{ user!!.favorability }}</td>
             </tr>
             <tr>
                 <td>血量</td>
-                <td>{{ user.health }} / 100</td>
+                <td>{{ user!!.health }} / 100</td>
             </tr>
         </tbody>
     </table>
-    <div v-if="user.register_time">
+    <div v-if="user?.register_time">
         <h3>探险家协会登记信息</h3>
         <table>
             <tbody>
                 <tr>
                     <td>舰船代号:</td>
-                    <td>{{ user.ship_code }}</td>
+                    <td>{{ user!!.ship_code }}</td>
                 </tr>
                 <tr>
                     <td>激活时间:</td>
-                    <td>{{ (new Date(user.activation_time * 1000)).toString() }}</td>
+                    <td>{{ (new Date(user!!.activation_time * 1000)).toString() }}</td>
                 </tr>
                 <tr>
                     <td>登记时间:</td>
-                    <td>{{ (new Date(user.register_time * 1000)).toString() }}</td>
+                    <td>{{ (new Date(user!!.register_time * 1000)).toString() }}</td>
                 </tr>
             </tbody>
         </table>
@@ -70,6 +67,7 @@ function logoutEvent() {
     <mdui-button icon="manage_accounts" end-icon="arrow_forward" @click="router.push('/settings#user')">用户账户设置</mdui-button>
     &nbsp;
     <mdui-button icon="logout" end-icon="arrow_forward" @click="logoutEvent">退出登录</mdui-button>
+	</div>
 </template>
 
 <style scoped>

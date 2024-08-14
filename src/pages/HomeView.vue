@@ -1,15 +1,15 @@
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { getCurrentUser } from '@/utils/user.js';
+import { getCurrentUser } from '@/utils/user';
 
 const nickname = ref("未登陆用户");
 
 onMounted(async () => {
-    let user = await getCurrentUser()
+    let user = await getCurrentUser();
     if (user) {
         nickname.value = user.nickname || "未登陆用户";
     }
-})
+});
 
 </script>
 

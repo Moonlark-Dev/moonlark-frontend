@@ -1,20 +1,18 @@
-<script setup>
+<script setup lang="ts">
 import { getPrefix } from '@/utils/prefix';
-import { getCurrentUser, isLoggedIn, logout, requestBindMainAccount } from '@/utils/user';
+import { getCurrentUser, isLoggedIn, logout, requestBindMainAccount, type UserData } from '@/utils/user';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const user = ref({});
+const user = ref<UserData>();
 const mainAccountID = ref("");
 const binaActivateCode = ref("");
 
 onMounted(async () => {
-    if (!await isLoggedIn()) {
-        router.push('/login');
-    }
+    if (!await isLoggedIn()) await router.push('/login');
     user.value = await getCurrentUser();
-})
+});
 
 async function bindMainAccount() {
     const code = await requestBindMainAccount(mainAccountID.value);
@@ -26,7 +24,6 @@ async function bindMainAccount() {
     }
 }
 
-
 function logoutEvent() {
     logout();
     router.push('/login');
@@ -37,7 +34,7 @@ function logoutEvent() {
 <template>
 
     <h2 id="user">用户账户设置</h2>
-    <p>当前登录: {{ user.nickname }}</p>
+    <p>当前登录: {{ user?.nickname }}</p>
     <h3>绑定母帐号</h3>
     <div class="form" v-if="!binaActivateCode">
         <mdui-text-field label="帐号ID" :value="mainAccountID" @input="mainAccountID = $event.target.value" clearable></mdui-text-field>
@@ -47,7 +44,7 @@ function logoutEvent() {
     <div class="form" v-else>
         <p>请使用 {{ mainAccountID }} 输入以下指令进行激活: </p>
         <mdui-text-field :value="binaActivateCode" readonly></mdui-text-field>
-        <a :href="logout()">我已完成绑定，退出登录</a>
+        <a :href="void logoutEvent()">我已完成绑定，退出登录</a>
     </div>
 </template>
 

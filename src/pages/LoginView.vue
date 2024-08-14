@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { getPrefix } from '@/utils/prefix';
 import { isLoggedIn, login } from '@/utils/user';
 import { onUnmounted, ref } from 'vue';
@@ -6,8 +6,8 @@ import { onUnmounted, ref } from 'vue';
 const emit = defineEmits(['pageChanged']);
 const props = defineProps({ isMobile: Boolean });
 const step = ref(0);
-const activate_code = ref("获取中 ...");
-const user_id = ref(null);
+const activateCode = ref("获取中 ...");
+const userID = ref<string | null>(null);
 let intervalId = Array();
 let verifyInterval = ref(0);
 
@@ -22,8 +22,8 @@ function changeTimer() {
 }
 
 async function getActivateCode() {
-    let data = await login(user_id.value);
-    activate_code.value = `${await getPrefix()}account verify ${data.activate_code}`;
+    let data = await login(userID.value!!);
+    activateCode.value = `${await getPrefix()}account verify ${data.activate_code}`;
     step.value = 1;
     verifyInterval.value = data.effective_time;
     intervalId.push(setInterval(checkLogin, 1000));
@@ -31,24 +31,23 @@ async function getActivateCode() {
 }
 
 onUnmounted(() => {
-    intervalId.forEach((value, index, array) => {
+    intervalId.forEach(value => {
         clearInterval(value);
     });
-})
+});
 
 </script>
 
 <template>
     <h1>登陆</h1>
     <div v-if="step === 0" :class="{ form: !props.isMobile }">
-        <mdui-text-field label="用户ID" :value="user_id" @input="user_id = $event.target.value"
-            clearable></mdui-text-field>
+        <mdui-text-field label="用户ID" :value="userID" @input="userID = $event.target.value" clearable></mdui-text-field>
         <p></p>
         <mdui-button @click="getActivateCode()">确认</mdui-button>
     </div>
     <div v-if="step === 1" :class="{ form: !props.isMobile }">
         <p>请在 Moonlark 中输入以下指令进行激活: </p>
-        <mdui-text-field :value="activate_code" readonly></mdui-text-field>
+        <mdui-text-field :value="activateCode" readonly></mdui-text-field>
         <small>请在 <strong>{{ verifyInterval }}s</strong> 内完成登陆验证</small>
     </div>
 </template>
