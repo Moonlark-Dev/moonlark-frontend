@@ -12,7 +12,7 @@ module.exports = {
         ecmaVersion: 'latest',
     },
     rules: {
-        'vue/no-deprecated-slot-attribute':  'off',
+        'vue/no-deprecated-slot-attribute': 'off',
         'no-return-assign': 'off',
         'eqeqeq': 'off',
         'semi': ["error", "always"],
