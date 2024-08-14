@@ -1,0 +1,1 @@
+import{d as t,r as s,o,g as r,c,a as n,t as l,F as u,b as i}from"./index-CNbrXZBK.js";const m=n("h1",null,"主页",-1),f=t({__name:"HomeView",setup(_){const a=s("未登录用户");return o(async()=>{let e=await r();e&&(a.value=e.nickname||"未登录用户")}),(e,p)=>(i(),c(u,null,[m,n("p",null,"欢迎回来，"+l(a.value)+"！",1)],64))}});export{f as default};
