@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 22
 
-      - name: Build
+      - name: Lint
         run: |
           npm install
           npm run lint
