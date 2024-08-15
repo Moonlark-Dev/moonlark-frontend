@@ -31,9 +31,9 @@ onMounted(() => {
 	}
 });
 
-function changePage(page: string) {
+async function changePage(page: string) {
 	activatedItem.value = page;
-	router.push(`/${ page }`);
+	await router.push(`/${ page }`);
 }
 
 </script>

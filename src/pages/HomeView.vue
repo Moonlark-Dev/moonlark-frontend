@@ -2,13 +2,11 @@
 import { onMounted, ref } from 'vue';
 import { getCurrentUser } from '@/utils/user';
 
-const nickname = ref("未登录用户");
+const nickname = ref("用户");
 
 onMounted(async () => {
 	let user = await getCurrentUser();
-	if (user) {
-		nickname.value = user.nickname || "未登录用户";
-	}
+	if (user) nickname.value = user.nickname ||  "未登录用户";
 });
 
 </script>
