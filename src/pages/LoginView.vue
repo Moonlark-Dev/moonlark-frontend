@@ -1,20 +1,19 @@
 <script setup lang="ts">
 import { getPrefix } from '@/utils/prefix';
 import { isLoggedIn, login } from '@/utils/user';
-import { onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
+import { useRouter } from "vue-router";
 
-const emit = defineEmits([ 'pageChanged' ]);
 const props = defineProps({ isMobile: Boolean });
 const step = ref(0);
 const activateCode = ref("获取中 ...");
 const userID = ref<string | null>(null);
-let intervalId = Array();
-let verifyInterval = ref(0);
+const verifyInterval = ref(0);
+const router = useRouter();
+let intervalId: number[] = [];
 
 async function checkLogin() {
-	if (await isLoggedIn()) {
-		emit('pageChanged', 'home');
-	}
+	if (await isLoggedIn()) router.back();
 }
 
 function changeTimer() {
@@ -30,12 +29,17 @@ async function getActivateCode() {
 	intervalId.push(setInterval(changeTimer, 1000));
 }
 
+onMounted(
+	async () => {
+		if (await isLoggedIn()) await router.push("/");
+	}
+);
+
 onUnmounted(() => {
 	intervalId.forEach(value => {
 		clearInterval(value);
 	});
 });
-
 </script>
 
 <template>

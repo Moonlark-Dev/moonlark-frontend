@@ -2,9 +2,9 @@
 import { setTheme } from 'mdui/functions/setTheme';
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { setCookie, getCookie } from '@/utils/cookie';
 import type { Theme } from "mdui/internal/theme";
 import { getCurrentUser, isLoggedIn, type UserData } from "@/utils/user";
+import { useDark } from "@vueuse/core";
 
 const user = ref<UserData>();
 
@@ -14,7 +14,7 @@ onMounted(async () => {
 
 const router = useRouter();
 const route = useRoute();
-const darkMode = ref(true);
+const darkMode = useDark();
 const activatedItem = ref("home");
 const props = defineProps({ isMobile: Boolean });
 
@@ -22,18 +22,15 @@ function changeTheme(dark: boolean) {
 	darkMode.value = dark;
 	let theme: Theme = dark ? "dark" : "light";
 	setTheme(theme);
-	setCookie("theme", theme);
 }
 
 onMounted(() => {
-	if (getCookie("theme") === "light") {
-		changeTheme(false);
-	}
+	changeTheme(darkMode.value);
 });
 
-function changePage(page: string) {
+async function changePage(page: string) {
 	activatedItem.value = page;
-	router.push(`/${ page }`);
+	await router.push(`/${ page }`);
 }
 
 </script>

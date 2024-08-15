@@ -1,7 +1,6 @@
 const DEFAULT_COOKIE_EXPIRES_DAYS = 730;
 
-
-export function setCookie(cName: string, cValue: string | undefined, expireDays: number = DEFAULT_COOKIE_EXPIRES_DAYS): void {
+export function setCookie(cName: string, cValue?: string, expireDays: number = DEFAULT_COOKIE_EXPIRES_DAYS): void {
     const d = new Date();
     d.setTime(d.getTime() + (expireDays * 24 * 60 * 60 * 1000));
     const expires = "expires=" + d.toUTCString();
