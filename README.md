@@ -1,21 +1,13 @@
 # moonlark-frontend
 
-Moonlark 前端网页
+此项目为 Moonlark 前端部分的代码库
 
-## Project Setup
+## 项目设置
 
 ```sh
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
+# 编译和热重载用于开发
 npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
+# 编译并用于生产环境
 npm run build
 ```
