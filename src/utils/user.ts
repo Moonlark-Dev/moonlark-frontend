@@ -1,4 +1,4 @@
-import { getCookie, setCookie } from "@/utils/cookie.js";
+import { getCookie, setCookie } from "@/utils/cookie";
 import { API_URL } from "@/utils/utils";
 
 export function getSessionIDOrNull(): string | null {
