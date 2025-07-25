@@ -32,7 +32,7 @@ function logoutEvent() {
 			</tr>
 			<tr>
 				<td>等级:</td>
-				<td>{{ user!!.level }} ({{ user!!.experience - (user!!.level - 1) ** 3 }} /
+				<td>{{ user!!.level }} ({{ user!!.experience }} /
 					{{ user!!.level ** 3 - (user!!.level - 1) ** 3 }})
 				</td>
 			</tr>
@@ -40,31 +40,16 @@ function logoutEvent() {
 				<td>好感度</td>
 				<td>{{ user!!.favorability }}</td>
 			</tr>
-			<tr>
+			<tr v-if="user?.register_time">
 				<td>血量</td>
 				<td>{{ user!!.health }} / 100</td>
 			</tr>
-			</tbody>
-		</table>
-		<div v-if="user?.register_time">
-			<h3>探险家协会登记信息</h3>
-			<table>
-				<tbody>
-				<tr>
-					<td>舰船代号:</td>
-					<td>{{ user!!.ship_code }}</td>
-				</tr>
-				<tr>
-					<td>激活时间:</td>
-					<td>{{ (new Date(user!!.activation_time * 1000)).toString() }}</td>
-				</tr>
-				<tr>
-					<td>登记时间:</td>
+			<tr>
+					<td>注册时间:</td>
 					<td>{{ (new Date(user!!.register_time * 1000)).toString() }}</td>
 				</tr>
-				</tbody>
-			</table>
-		</div>
+			</tbody>
+		</table>
 		<p></p>
 		<mdui-button icon="manage_accounts" end-icon="arrow_forward" @click="router.push('/settings#user')">
 			用户账户设置

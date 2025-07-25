@@ -40,6 +40,11 @@ export interface LoginResult {
     effective_time: number
 }
 
+export interface ResultWithMessage {
+    success: boolean,
+    message: string
+}
+
 export interface UserData {
     user_id: string,
     nickname: string,
@@ -49,8 +54,6 @@ export interface UserData {
     favorability: number,
     health: number,
     register_time: number | undefined,
-    activation_time: number,
-    ship_code: number | undefined,
     avatar: string | undefined
 }
 
@@ -67,6 +70,20 @@ export async function login(userID: string): Promise<LoginResult> {
     const data = await response.json();
     setCookie("sessionID", data.session_id);
     return data;
+}
+
+export async function postChangeNickname(nickname: string): Promise<ResultWithMessage> {
+    const response = await fetch(API_URL + "/users/me", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + getSessionID()
+        },
+        body: JSON.stringify({
+            nickname: nickname
+        })
+    });
+    return await response.json();
 }
 
 export async function getCurrentUser(): Promise<UserData> {
