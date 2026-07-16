@@ -35,7 +35,7 @@ function showDate(time: number) {
 				<mdui-list-item slot="header" icon="leaderboard">
 					<h3>{{ rankingName }} ({{ ranking.total }}) - {{ showDate(ranking.time) }}</h3>
 				</mdui-list-item>
-				<mdui-list-item v-for="user of ranking.users.sort((a, b) => a.index > b.index ? 1 : -1)"
+				<mdui-list-item v-for="user of ranking.users"
 								v-bind:key="user">
 					{{ user.index }}. {{ user.nickname }} ({{ user.info ?? user.user_id }}) - {{ user.data }}
 				</mdui-list-item>
