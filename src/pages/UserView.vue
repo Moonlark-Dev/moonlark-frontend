@@ -15,39 +15,55 @@ function logoutEvent() {
 	logout();
 	router.push('/login');
 }
+
+function levelExp(level: number): number {
+    return level ** 3 - (level - 1) ** 3;
+}
 </script>
 
 <template>
 	<div v-if="user">
 		<h2>用户</h2>
+
+		<!-- Avatar -->
+		<div class="avatar-section">
+			<mdui-avatar
+				v-if="user.avatar"
+				:src="'data:image/png;base64,' + user.avatar"
+				style="width: 80px; height: 80px;"
+			></mdui-avatar>
+			<mdui-avatar
+				v-else
+				style="width: 80px; height: 80px; font-size: 36px;"
+			>{{ user.nickname?.charAt(0) || '?' }}</mdui-avatar>
+		</div>
+
 		<table>
 			<tbody>
 			<tr>
 				<td>当前登录:</td>
-				<td>{{ user!!.nickname }} ({{ user!!.user_id }})</td>
+				<td>{{ user.nickname }} ({{ user.user_id }})</td>
 			</tr>
 			<tr>
 				<td>VimCoin:</td>
-				<td>{{ user!!.vimcoin }}</td>
+				<td>{{ user.vimcoin }}</td>
 			</tr>
 			<tr>
 				<td>等级:</td>
-				<td>{{ user!!.level }} ({{ user!!.experience }} /
-					{{ user!!.level ** 3 - (user!!.level - 1) ** 3 }})
-				</td>
+				<td>{{ user.level }} ({{ user.experience }} / {{ levelExp(user.level) }})</td>
 			</tr>
 			<tr>
 				<td>好感度</td>
-				<td>{{ user!!.favorability }}</td>
-			</tr>
-			<tr v-if="user?.register_time">
-				<td>血量</td>
-				<td>{{ user!!.health }} / 100</td>
+				<td>{{ user.favorability }}</td>
 			</tr>
 			<tr>
-					<td>注册时间:</td>
-					<td>{{ (new Date(user!!.register_time * 1000)).toString() }}</td>
-				</tr>
+				<td>血量</td>
+				<td>{{ user.health }} / 100</td>
+			</tr>
+			<tr v-if="user.register_time">
+				<td>注册时间:</td>
+				<td>{{ new Date(user.register_time * 1000).toLocaleString() }}</td>
+			</tr>
 			</tbody>
 		</table>
 		<p></p>
@@ -57,10 +73,17 @@ function logoutEvent() {
 		&nbsp;
 		<mdui-button icon="logout" end-icon="arrow_forward" @click="logoutEvent">退出登录</mdui-button>
 	</div>
-	<h1 v-else>加载中</h1>
+	<div v-else class="state-box">
+		<mdui-linear-progress indeterminate></mdui-linear-progress>
+		<p>加载中...</p>
+	</div>
 </template>
 
 <style scoped lang="scss">
+.avatar-section {
+    margin-bottom: 16px;
+}
+
 table {
 	width: 65%;
 	border-collapse: collapse;
@@ -82,5 +105,10 @@ caption {
 	caption-side: top;
 	font-size: 1.5em;
 	padding: 10px;
+}
+
+.state-box {
+    text-align: center;
+    padding: 40px 20px;
 }
 </style>
