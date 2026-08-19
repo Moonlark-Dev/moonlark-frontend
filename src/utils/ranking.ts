@@ -1,9 +1,8 @@
-import { getSessionID, getSessionIDOrNull } from "@/utils/user";
-import { API_URL, BASE_URL } from "@/utils/utils";
+import { apiRequest, apiRequestFull, getSessionIDOrNull } from "./api";
 
 export interface RankingInfo {
-    name: string,
-    uri: string,
+    name: string;
+    uri: string;
 }
 
 export interface Rankings {
@@ -11,35 +10,33 @@ export interface Rankings {
 }
 
 export interface Ranking {
-    time: number,
-    total: number,
-    me: null | string,
-    users: RankingUser[]
+    time: number;
+    total: number;
+    title: string;
+    me: null | RankingUser;
+    users: RankingUser[];
 }
 
 export interface RankingUser {
-    user_id: string,
-    nickname: string,
-    data: number,
-    index: number,
-    info: null | string
+    user_id: string;
+    nickname: string;
+    data: number;
+    index: number;
+    info: null | string;
+    display?: string;
 }
 
-export async function getRankings() {
-    const fetcher = await fetch(API_URL + "/rankings", { method: "GET" });
-    return (await fetcher.json()) as Rankings;
+export async function getRankings(): Promise<Rankings> {
+    return apiRequest<Rankings>("/rankings");
 }
 
-export async function getRankingByURI(uri: string) {
-    const headers: Record<string, any> = {
-        "Content-Type": "application/json"
-    };
-    if (getSessionIDOrNull()) headers["Authorization"] = `Bearer ${ getSessionID() }`;
-    const fetcher = await fetch(BASE_URL + uri, { method: "GET", headers });
-    return (await fetcher.json()) as Ranking;
+export async function getRankingByURI(uri: string): Promise<Ranking> {
+    return apiRequestFull<Ranking>(uri);
 }
 
-export async function getRankingByName(rankingName: string) {
-    const rankingInfo = (await getRankings())[rankingName];
-    return await getRankingByURI(rankingInfo.uri);
+export async function getRankingByName(rankingName: string): Promise<Ranking> {
+    const rankings = await getRankings();
+    const info = rankings[rankingName];
+    if (!info) throw new Error(`Ranking "${rankingName}" not found`);
+    return getRankingByURI(info.uri);
 }

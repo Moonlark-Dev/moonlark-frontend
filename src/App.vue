@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue';
 import Navigation from './components/NavbarComponent.vue';
+import Toast from './components/ToastComponent.vue';
 import { RouterView } from 'vue-router';
 
 const isMobile = ref(false);
@@ -19,9 +20,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-	<Navigation :isMobile="isMobile"/>
+	<Toast />
+	<Navigation :isMobile="isMobile" />
 	<main class="container">
-		<RouterView/>
+		<RouterView />
 	</main>
 </template>
 
