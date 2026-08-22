@@ -49,6 +49,8 @@ function navigateTo(page: string) {
         </mdui-navigation-rail-item>
         <mdui-navigation-rail-item icon="list--outlined" value="rankings" @click="navigateTo('rankings')">排行
         </mdui-navigation-rail-item>
+        <mdui-navigation-rail-item icon="menu_book--outlined" value="help" @click="navigateTo('help')">帮助
+        </mdui-navigation-rail-item>
         <mdui-button-icon v-if="user" icon="settings--outlined" @click="navigateTo('settings')" slot="bottom"></mdui-button-icon>
         <mdui-button-icon icon="source--outlined" slot="bottom" href="https://github.com/Moonlark-Dev/Moonlark" target="_blank"></mdui-button-icon>
         <mdui-button-icon @click="changeTheme(false)" v-if="darkMode" icon="dark_mode--outlined" slot="bottom"></mdui-button-icon>
@@ -60,6 +62,8 @@ function navigateTo(page: string) {
         <mdui-navigation-bar-item icon="people--outlined" value="user" @click="navigateTo('user')">用户
         </mdui-navigation-bar-item>
         <mdui-navigation-bar-item icon="list--outlined" value="rankings" @click="navigateTo('rankings')">排行
+        </mdui-navigation-bar-item>
+        <mdui-navigation-bar-item icon="menu_book--outlined" value="help" @click="navigateTo('help')">帮助
         </mdui-navigation-bar-item>
     </mdui-navigation-bar>
 </template>
