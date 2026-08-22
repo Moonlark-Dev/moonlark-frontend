@@ -7,7 +7,7 @@ const user = ref<UserData>();
 const router = useRouter();
 
 onMounted(async () => {
-	if (!await isLoggedIn()) await router.push('/login');
+	if (!await isLoggedIn()) await router.push('/login?redirect=/user');
 	user.value = await getCurrentUser();
 });
 

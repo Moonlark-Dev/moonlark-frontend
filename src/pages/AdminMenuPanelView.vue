@@ -67,7 +67,7 @@ async function sync() {
 }
 
 onMounted(async () => {
-	if (!await isLoggedIn()) await router.push('/login');
+	if (!await isLoggedIn()) await router.push('/login?redirect=/admin/menupanel');
 	if (!await isSuperuser()) {
 		allowed.value = false;
 		loading.value = false;

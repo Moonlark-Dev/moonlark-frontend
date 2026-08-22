@@ -11,7 +11,7 @@ const user = ref<UserData>();
 const router = useRouter();
 const superuser = ref(false);
 onMounted(async () => {
-	if (!await isLoggedIn()) await router.push('/login');
+	if (!await isLoggedIn()) await router.push('/login?redirect=/settings');
 	user.value = await getCurrentUser();
 	superuser.value = await isSuperuser();
 });

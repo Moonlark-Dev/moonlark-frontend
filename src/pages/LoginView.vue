@@ -1,36 +1,42 @@
 <script setup lang="ts">
+import { isLoggedIn, login, waitForActivation, type LoginResult } from '@/utils/user';
 import { getPrefix } from '@/utils/prefix';
-import { isLoggedIn, login } from '@/utils/user';
 import { onMounted, onUnmounted, ref } from 'vue';
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 const props = defineProps({ isMobile: Boolean });
 const step = ref(0);
-const activateCode = ref("获取中 ...");
+const activateCode = ref("");
 const userID = ref<string | null>(null);
 const verifyInterval = ref(0);
 const router = useRouter();
-let intervalId: number[] = [];
+const route = useRoute();
 const loginError = ref("");
+let abortController: AbortController | null = null;
+let tickId: number | undefined;
 
-function clearIntervals() {
-    intervalId.forEach(id => clearInterval(id));
-    intervalId = [];
-}
-
-async function checkLogin() {
-    if (await isLoggedIn()) {
-        clearIntervals();
-        router.back();
+function stopWaiting() {
+    abortController?.abort();
+    abortController = null;
+    if (tickId !== undefined) {
+        clearInterval(tickId);
+        tickId = undefined;
     }
 }
 
-function changeTimer() {
-    verifyInterval.value -= 1;
-    if (verifyInterval.value <= 0) {
-        clearIntervals();
-        step.value = 2; // timeout
-    }
+function redirectTarget(): string {
+    const redirect = route.query.redirect;
+    return typeof redirect === "string" && redirect.startsWith("/") ? redirect : "/";
+}
+
+function updateCountdown(deadline: number) {
+    verifyInterval.value = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+}
+
+async function navigateAfterLogin() {
+    const target = redirectTarget();
+    if (route.path === target) return;
+    await router.push(target);
 }
 
 async function getActivateCode() {
@@ -39,33 +45,49 @@ async function getActivateCode() {
         return;
     }
     loginError.value = "";
+    let data: LoginResult;
     try {
-        const data = await login(userID.value);
-        activateCode.value = `${await getPrefix()}account verify ${data.activate_code}`;
-        step.value = 1;
-        verifyInterval.value = data.effective_time;
-        intervalId.push(setInterval(checkLogin, 1000));
-        intervalId.push(setInterval(changeTimer, 1000));
+        data = await login(userID.value.trim());
     } catch {
         loginError.value = "登录失败，请检查用户ID是否正确";
+        return;
+    }
+    // prefix 只用于展示文案：请求失败时 getPrefix 会回退缓存/空串，不影响已成功的登录
+    activateCode.value = `${data.command_prefix ?? (await getPrefix())}account verify ${data.activate_code}`;
+    step.value = 1;
+    const deadline = Date.now() + Math.max(1, data.effective_time || 300) * 1000;
+    updateCountdown(deadline);
+    tickId = window.setInterval(() => updateCountdown(deadline), 1000);
+    abortController = new AbortController();
+    try {
+        const result = await waitForActivation(abortController.signal, deadline);
+        stopWaiting();
+        if (result === "activated") {
+            await navigateAfterLogin();
+        } else {
+            step.value = 2; // timeout
+        }
+    } catch {
+        // 请求被取消（重新输入 / 离开页面），无需处理
     }
 }
 
 function goBack() {
-    clearIntervals();
+    stopWaiting();
     step.value = 0;
 }
 
 function retryLogin() {
+    stopWaiting();
     step.value = 0;
 }
 
 onMounted(async () => {
-    if (await isLoggedIn()) await router.push("/");
+    if (await isLoggedIn()) await router.push(redirectTarget());
 });
 
 onUnmounted(() => {
-    clearIntervals();
+    stopWaiting();
 });
 </script>
 
