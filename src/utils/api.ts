@@ -8,7 +8,7 @@ export function getSessionIDOrNull(): string | null {
 }
 
 export function getSessionID(): string {
-    return getSessionIDOrNull()!!;
+    return getSessionIDOrNull()!;
 }
 
 export function logout(): void {

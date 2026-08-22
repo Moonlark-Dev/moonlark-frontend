@@ -3,7 +3,7 @@ import { postChangeNickname, type UserData } from '@/utils/user';
 import { ref } from 'vue';
 import { showToast } from '@/components/ToastComponent.vue';
 
-const props = defineProps(['user'])
+const props = defineProps(['user']);
 const user = ref<UserData>(props.user);
 const newNickname = ref(user.value.nickname);
 

@@ -10,7 +10,7 @@ onMounted(async () => {
         return;
     }
     try {
-        let user = await getCurrentUser();
+        const user = await getCurrentUser();
         if (user) nickname.value = user.nickname || "未登录用户";
     } catch {
         nickname.value = "未登录用户";

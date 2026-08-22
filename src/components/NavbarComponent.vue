@@ -24,7 +24,7 @@ onMounted(async () => {
 
 function changeTheme(dark: boolean) {
     darkMode.value = dark;
-    let theme: Theme = dark ? "dark" : "light";
+    const theme: Theme = dark ? "dark" : "light";
     setTheme(theme);
 }
 

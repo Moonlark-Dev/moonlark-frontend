@@ -5,7 +5,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { showToast } from '@/components/ToastComponent.vue';
 
-const props = defineProps(['user'])
+const props = defineProps(['user']);
 const router = useRouter();
 const user = ref<UserData>(props.user);
 const mainAccountID = ref("");
