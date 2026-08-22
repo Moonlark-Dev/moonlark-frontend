@@ -1,5 +1,6 @@
-<script setup lang="ts">
-import { ref } from "vue";
+<script lang="ts">
+// showToast 需要在组件外部导入使用，因此放在普通 <script> 块中导出
+import { defineComponent, ref } from "vue";
 
 interface ToastMessage {
     id: number;
@@ -17,6 +18,13 @@ export function showToast(text: string, type: "info" | "success" | "error" = "in
         messages.value = messages.value.filter((m) => m.id !== id);
     }, 3000);
 }
+
+export default defineComponent({
+    name: "ToastComponent",
+    setup() {
+        return { messages };
+    }
+});
 </script>
 
 <template>
