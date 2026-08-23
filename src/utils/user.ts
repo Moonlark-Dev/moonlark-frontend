@@ -10,6 +10,7 @@ import {
     sleep,
 } from "./api";
 import { setCookie } from "./cookie";
+import { clearApiCache } from "./cache";
 import { setCachedPrefix } from "./prefix";
 
 // Re-export session helpers for backward compatibility
@@ -18,6 +19,7 @@ export { getSessionIDOrNull, getSessionID };
 export function logout(): void {
     apiLogout();
     invalidateSessionCache();
+    clearApiCache(); // 排行等缓存含个人数据，登出后必须清空
 }
 
 // ── 会话状态单飞缓存 ──
@@ -102,6 +104,7 @@ export async function login(userID: string): Promise<LoginResult> {
     setCookie("sessionID", data.session_id);
     if (data.command_prefix != null) setCachedPrefix(data.command_prefix);
     invalidateSessionCache();
+    clearApiCache(); // 账号切换后清空旧账号的缓存数据
     return data;
 }
 

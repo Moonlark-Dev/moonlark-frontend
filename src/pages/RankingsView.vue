@@ -1,38 +1,50 @@
 <script setup lang="ts">
 import { getRankingByURI, getRankings, type Ranking, type Rankings } from "@/utils/ranking";
-import { getSessionIDOrNull } from "@/utils/api";
 import { onMounted, ref } from "vue";
 import { showToast } from "@/components/ToastComponent.vue";
 
 const rankingData = ref<Record<string, Ranking>>({});
-const loading = ref(true);
+// initialLoading：尚无数据时的整页加载态；refreshing：手动刷新时保留旧数据的轻量提示
+const initialLoading = ref(true);
+const refreshing = ref(false);
 const error = ref(false);
+const updatedAt = ref(0);
+let loadedOnce = false;
 
-async function* fetchRankingData() {
+async function loadRankings(force = false) {
+    if (!loadedOnce) initialLoading.value = true;
+    else refreshing.value = true;
+    error.value = false;
     try {
-        const rankings: Rankings = await getRankings();
+        const rankings: Rankings = await getRankings({ force });
         const entries = Object.entries(rankings);
-        if (entries.length === 0) return;
-        const race = entries.map(async ([, info]) => [info.name, await getRankingByURI(info.uri)] as [string, Ranking]);
-        for (const item of await Promise.allSettled(race)) {
-            if (item.status === "fulfilled") yield item.value;
-            else {
-                showToast("部分排行加载失败", "error");
-            }
+        if (entries.length === 0) {
+            rankingData.value = {};
+            return;
         }
+        const race = entries.map(async ([, info]) => [info.name, await getRankingByURI(info.uri, { force })] as [string, Ranking]);
+        const merged: Record<string, Ranking> = {};
+        let failedCount = 0;
+        for (const item of await Promise.allSettled(race)) {
+            if (item.status === "fulfilled") merged[item.value[0]] = item.value[1];
+            else failedCount += 1;
+        }
+        rankingData.value = merged;
+        updatedAt.value = Date.now();
+        if (failedCount > 0) showToast(`部分排行加载失败 (${failedCount})`, "error");
     } catch {
-        error.value = true;
+        // 已有旧数据时保留展示，仅提示；首次加载失败才进入整页错误态
+        error.value = !loadedOnce;
         showToast("排行数据加载失败", "error");
+    } finally {
+        initialLoading.value = false;
+        refreshing.value = false;
+        loadedOnce = true;
     }
 }
 
-onMounted(async () => {
-    const entries: Record<string, Ranking> = {};
-    for await (const item of fetchRankingData()) {
-        if (item) entries[item[0]] = item[1];
-    }
-    rankingData.value = entries;
-    loading.value = false;
+onMounted(() => {
+    loadRankings();
 });
 
 function showDate(time: number) {
@@ -40,14 +52,32 @@ function showDate(time: number) {
     return ("0" + date.getHours()).slice(-2) + ":" + ("0" + date.getMinutes()).slice(-2) + ":" + ("0" + date.getSeconds()).slice(-2);
 }
 
-const loggedIn = getSessionIDOrNull() !== null;
+function showClock(timeMs: number) {
+    return showDate(Math.floor(timeMs / 1000));
+}
 </script>
 
 <template>
-    <h1>排行</h1>
+    <div class="page-header">
+        <h1>排行</h1>
+        <div class="header-actions">
+            <span v-if="updatedAt" class="updated-at">更新于 {{ showClock(updatedAt) }}</span>
+            <mdui-button-icon
+                icon="refresh"
+                :disabled="initialLoading || refreshing"
+                :class="{ spinning: refreshing }"
+                aria-label="刷新排行数据"
+                title="强制刷新（忽略缓存）"
+                @click="loadRankings(true)"
+            ></mdui-button-icon>
+        </div>
+    </div>
+
+    <!-- 手动刷新时保留旧数据，仅显示顶部进度条 -->
+    <mdui-linear-progress v-if="refreshing" class="refresh-bar" indeterminate></mdui-linear-progress>
 
     <!-- Loading -->
-    <div v-if="loading" class="state-box">
+    <div v-if="initialLoading" class="state-box">
         <mdui-linear-progress indeterminate></mdui-linear-progress>
         <p>正在加载排行数据...</p>
     </div>
@@ -56,7 +86,7 @@ const loggedIn = getSessionIDOrNull() !== null;
     <div v-else-if="error" class="state-box">
         <mdui-icon name="error_outline" style="font-size: 48px; color: #f44336;"></mdui-icon>
         <p>排行数据加载失败，请稍后重试</p>
-        <mdui-button @click="() => { loading = true; error = false; onMounted(() => {}); location.reload(); }">重新加载</mdui-button>
+        <mdui-button @click="loadRankings(true)">重新加载</mdui-button>
     </div>
 
     <!-- Empty -->
@@ -93,6 +123,47 @@ const loggedIn = getSessionIDOrNull() !== null;
 </template>
 
 <style scoped lang="scss">
+.page-header {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+
+    h1 {
+        margin: 0;
+    }
+}
+
+.header-actions {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.updated-at {
+    font-size: 0.85em;
+    color: var(--mdui-color-on-surface-variant);
+}
+
+.refresh-bar {
+    width: 100%;
+    margin-bottom: 8px;
+}
+
+.spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .state-box {
     text-align: center;
     padding: 40px 20px;

@@ -1,19 +1,38 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { fetchHelpList, type CommandInfo, type HelpCategory } from '@/utils/menupanel';
+import { showToast } from '@/components/ToastComponent.vue';
 
 const categories = ref<HelpCategory[]>();
+// initialLoading：尚无数据时的加载态；refreshing：手动刷新时保留旧列表的轻量提示
+const initialLoading = ref(true);
+const refreshing = ref(false);
 const error = ref('');
 const keyword = ref('');
 const selectedCommand = ref<CommandInfo | null>(null);
 const dialogOpen = ref(false);
+let loadedOnce = false;
 
-onMounted(async () => {
+async function loadHelp(force = false) {
+	if (!loadedOnce) initialLoading.value = true;
+	else refreshing.value = true;
+	error.value = '';
 	try {
-		categories.value = await fetchHelpList();
+		categories.value = await fetchHelpList({ force });
 	} catch (e) {
-		error.value = e instanceof Error ? e.message : String(e);
+		const messageText = e instanceof Error ? e.message : String(e);
+		// 已有旧列表时保留展示并提示；首次加载失败才进入整页错误态
+		if (!loadedOnce || !categories.value?.length) error.value = messageText;
+		else showToast(`帮助数据刷新失败：${messageText}`, 'error');
+	} finally {
+		initialLoading.value = false;
+		refreshing.value = false;
+		loadedOnce = true;
 	}
+}
+
+onMounted(() => {
+	loadHelp();
 });
 
 /// 按关键字过滤指令（匹配指令名、简介或分类名），并隐藏过滤后没有指令的分类
@@ -39,9 +58,27 @@ function openCommand(command: CommandInfo) {
 </script>
 
 <template>
-	<h1>Moonlark 指令帮助</h1>
-	<p v-if="error">帮助数据加载失败：{{ error }}</p>
-	<p v-else-if="!categories">正在加载……</p>
+	<div class="page-header">
+		<h1>Moonlark 指令帮助</h1>
+		<mdui-button-icon
+			icon="refresh"
+			variant="outlined"
+			:disabled="initialLoading"
+			:class="{ spinning: refreshing }"
+			aria-label="刷新帮助数据"
+			title="强制刷新（忽略缓存）"
+			@click="loadHelp(true)"
+		></mdui-button-icon>
+	</div>
+
+	<!-- 手动刷新时保留旧列表，仅显示顶部进度条 -->
+	<mdui-linear-progress v-if="refreshing" class="refresh-bar" indeterminate></mdui-linear-progress>
+
+	<p v-if="initialLoading">正在加载……</p>
+	<p v-else-if="error">
+		帮助数据加载失败：{{ error }}
+		<mdui-button variant="text" icon="refresh" @click="loadHelp(true)">重试</mdui-button>
+	</p>
 	<template v-else>
 		<mdui-text-field
 			class="search-box"
@@ -103,6 +140,35 @@ function openCommand(command: CommandInfo) {
 </template>
 
 <style scoped lang="scss">
+.page-header {
+	display: flex;
+	gap: 8px;
+	align-items: center;
+
+	h1 {
+		margin-right: auto;
+	}
+}
+
+.spinning {
+	animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+	from {
+		transform: rotate(0deg);
+	}
+
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.refresh-bar {
+	width: 100%;
+	margin-bottom: 8px;
+}
+
 .search-box {
 	width: 67%;
 	margin-bottom: 8px;

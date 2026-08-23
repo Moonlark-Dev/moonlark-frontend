@@ -1,4 +1,5 @@
 import { apiRequest, ApiError } from "@/utils/api";
+import { cachedRequest, type CacheOptions } from "@/utils/cache";
 
 export interface CommandInfo {
     name: string;
@@ -29,9 +30,15 @@ export interface SyncResponse {
     results: SyncResult[];
 }
 
+/** 指令帮助数据基本不变，缓存 10 分钟，切换页面时直接复用 */
+const HELP_LIST_TTL_MS = 10 * 60 * 1000;
+
 /// 获取按分类聚合的全部指令帮助数据（公开接口，无需登录）
-export async function fetchHelpList(): Promise<HelpCategory[]> {
-    return await apiRequest<HelpCategory[]>("/help/list", { auth: false });
+export async function fetchHelpList(options: CacheOptions = {}): Promise<HelpCategory[]> {
+    return await cachedRequest("help:list", () => apiRequest<HelpCategory[]>("/help/list", { auth: false }), {
+        ttl: HELP_LIST_TTL_MS,
+        ...options,
+    });
 }
 
 /// 当前登录用户是否为超级管理员

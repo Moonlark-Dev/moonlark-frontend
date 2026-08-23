@@ -1,4 +1,5 @@
-import { apiRequest, apiRequestFull, getSessionIDOrNull } from "./api";
+import { apiRequest, apiRequestFull } from "./api";
+import { cachedRequest, type CacheOptions } from "./cache";
 
 export interface RankingInfo {
     name: string;
@@ -26,17 +27,20 @@ export interface RankingUser {
     display?: string;
 }
 
-export async function getRankings(): Promise<Rankings> {
-    return apiRequest<Rankings>("/rankings");
+/** 排行数据缓存时长：切换页面时直接复用缓存，避免重复请求 */
+const RANKINGS_TTL_MS = 3 * 60 * 1000;
+
+export async function getRankings(options: CacheOptions = {}): Promise<Rankings> {
+    return cachedRequest("rankings", () => apiRequest<Rankings>("/rankings"), { ttl: RANKINGS_TTL_MS, ...options });
 }
 
-export async function getRankingByURI(uri: string): Promise<Ranking> {
-    return apiRequestFull<Ranking>(uri);
+export async function getRankingByURI(uri: string, options: CacheOptions = {}): Promise<Ranking> {
+    return cachedRequest(`ranking:${uri}`, () => apiRequestFull<Ranking>(uri), { ttl: RANKINGS_TTL_MS, ...options });
 }
 
-export async function getRankingByName(rankingName: string): Promise<Ranking> {
-    const rankings = await getRankings();
+export async function getRankingByName(rankingName: string, options: CacheOptions = {}): Promise<Ranking> {
+    const rankings = await getRankings(options);
     const info = rankings[rankingName];
     if (!info) throw new Error(`Ranking "${rankingName}" not found`);
-    return getRankingByURI(info.uri);
+    return getRankingByURI(info.uri, options);
 }
