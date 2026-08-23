@@ -1,4 +1,4 @@
-import { getCookie, setCookie } from "./cookie";
+import { deleteCookie, getCookie } from "./cookie";
 import { API_URL, BASE_URL } from "./utils";
 
 // ── Session ──
@@ -12,7 +12,29 @@ export function getSessionID(): string {
 }
 
 export function logout(): void {
-    setCookie("sessionID", undefined);
+    // 仅清除浏览器侧凭据；服务端会话删除由 user.ts 的 logout 调用 POST /logout 完成
+    deleteCookie("sessionID");
+}
+
+// ── 鉴权失败全局处理 ──
+// 会话过期/失效（401）时由 main.ts 注册的处理器统一跳转登录页；
+// api.ts 保持与路由解耦，避免循环依赖。
+
+type AuthErrorHandler = (error: ApiError) => void;
+
+let authErrorHandler: AuthErrorHandler | null = null;
+
+/** 注册全局 401 处理器；传入 null 取消。 */
+export function setAuthErrorHandler(handler: AuthErrorHandler | null): void {
+    authErrorHandler = handler;
+}
+
+function notifyAuthError(error: ApiError): void {
+    try {
+        authErrorHandler?.(error);
+    } catch {
+        // 处理器自身的异常不影响原请求的错误抛出
+    }
 }
 
 // ── API Client ──
@@ -52,7 +74,9 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
         signal,
     });
     if (!response.ok) {
-        throw new ApiError(response.status, response.statusText);
+        const error = new ApiError(response.status, response.statusText);
+        if (auth && response.status === 401) notifyAuthError(error); // 携带凭据仍 401：会话已失效
+        throw error;
     }
     return response.json();
 }
@@ -90,6 +114,7 @@ export async function apiCheck(path: string, options: RequestOptions = {}): Prom
             },
             signal,
         });
+        if (response.status === 401) notifyAuthError(new ApiError(401, response.statusText));
         return response.ok;
     } catch (error) {
         if (isAbortError(error)) throw error;

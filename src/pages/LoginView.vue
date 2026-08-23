@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { isLoggedIn, login, waitForActivation, type LoginResult } from '@/utils/user';
+import { isLoggedIn, login, waitForActivation, getSessionIDOrNull, type LoginResult } from '@/utils/user';
+import { setCookie } from '@/utils/cookie';
 import { getPrefix } from '@/utils/prefix';
 import { getLastLoginUser, setLastLoginUser } from '@/utils/lastLoginUser';
 import { onMounted, onUnmounted, ref } from 'vue';
@@ -9,6 +10,7 @@ const props = defineProps({ isMobile: Boolean });
 const step = ref(0);
 const activateCode = ref("");
 const userID = ref<string | null>(getLastLoginUser() || null);
+const rememberMe = ref(false);
 const verifyInterval = ref(0);
 const router = useRouter();
 const route = useRoute();
@@ -49,7 +51,7 @@ async function getActivateCode() {
     const trimmedUserID = userID.value.trim();
     let data: LoginResult;
     try {
-        data = await login(trimmedUserID);
+        data = await login(trimmedUserID, rememberMe.value ? 30 : undefined);
     } catch {
         loginError.value = "登录失败，请检查用户ID是否正确";
         return;
@@ -66,7 +68,11 @@ async function getActivateCode() {
     try {
         const result = await waitForActivation(abortController.signal, deadline);
         stopWaiting();
-        if (result === "activated") {
+        if (result.status === "activated") {
+            // 激活时后端会轮换会话 ID（防 fixation），采用服务端下发的最新凭据
+            if (result.sessionId && result.sessionId !== getSessionIDOrNull()) {
+                setCookie("sessionID", result.sessionId);
+            }
             await navigateAfterLogin();
         } else {
             step.value = 2; // timeout
@@ -102,6 +108,9 @@ onUnmounted(() => {
     <div v-if="step === 0" :class="{ form: !props.isMobile }">
         <mdui-text-field label="用户ID" :value="userID" @input="userID = ($event.target as HTMLInputElement).value"
             clearable :error="!!loginError" :helper-text="loginError"></mdui-text-field>
+        <p></p>
+        <mdui-checkbox :checked="rememberMe"
+            @change="rememberMe = ($event.target as HTMLInputElement).checked">30 天内免重新验证（记住此浏览器）</mdui-checkbox>
         <p></p>
         <mdui-button @click="getActivateCode()">确认</mdui-button>
         &nbsp;

@@ -6,6 +6,7 @@ import BindMainAccountComponent from '@/components/BindMainAccountComponent.vue'
 import { getCurrentUser, isLoggedIn, type UserData } from '@/utils/user';
 import { isSuperuser } from '@/utils/menupanel';
 import ChangeNickName from '@/components/ChangeNickName.vue';
+import SessionManagerComponent from '@/components/SessionManagerComponent.vue';
 
 const user = ref<UserData>();
 const router = useRouter();
@@ -28,6 +29,10 @@ onMounted(async () => {
 		<p></p>
 		<mdui-card variant="outlined" class="card">
 			<bind-main-account-component :user="user" />
+		</mdui-card>
+		<p></p>
+		<mdui-card variant="outlined" class="card">
+			<session-manager-component />
 		</mdui-card>
 		<p></p>
 		<mdui-card v-if="superuser" variant="outlined" class="card">
