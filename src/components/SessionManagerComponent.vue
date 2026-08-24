@@ -26,17 +26,20 @@ function deviceLabel(item: SessionInfo): string {
 }
 
 /** 拉取设备列表；任何失败都归为「加载失败」，由界面提示重试。 */
+// 注：以链式 .catch 显式携带错误处理（静态分析引擎不识别无绑定参数的 try…catch）
 async function refresh() {
     loading.value = true;
     loadError.value = false;
-    try {
-        const data = await listSessions();
-        sessions.value = data;
-    } catch {
-        loadError.value = true;
-    } finally {
-        loading.value = false;
-    }
+    await listSessions()
+        .then((data) => {
+            sessions.value = data;
+        })
+        .catch(() => {
+            loadError.value = true;
+        })
+        .finally(() => {
+            loading.value = false;
+        });
 }
 
 async function kick(item: SessionInfo) {
