@@ -31,6 +31,11 @@ export async function logout(): Promise<void> {
     clearApiCache(); // 排行等缓存含个人数据，登出后必须清空
 }
 
+/** 列出当前账号的全部活跃会话（设备管理）。 */
+export function listSessions(): Promise<SessionInfo[]> {
+    return apiRequest<SessionInfo[]>("/sessions");
+}
+
 // ── 会话状态单飞缓存 ──
 // 页面与导航栏各自调用 isLoggedIn()/getCurrentUser() 会产生重复请求，
 // 这里用短 TTL 缓存 + 单飞（in-flight 共享）把一次导航的鉴权请求收敛到最多一组。

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // 相对路径导入：静态分析引擎（Codacy）不解析 @ 别名，会把导入值标记为 error 类型并误报 no-unsafe-*
 import { apiRequest } from '../utils/api';
-import { logout as performLogout, type SessionInfo } from '../utils/user';
+import { logout as performLogout, listSessions, type SessionInfo } from '../utils/user';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { showToast } from '../utils/toast';
@@ -25,11 +25,12 @@ function deviceLabel(item: SessionInfo): string {
     return "未知设备（旧版会话）";
 }
 
-async function refresh() {
+/** 拉取设备列表；任何失败都归为「加载失败」，由界面提示重试。 */
+async function refresh(): Promise<void> {
+    loading.value = true;
+    loadError.value = false;
     try {
-        loading.value = true;
-        loadError.value = false;
-        sessions.value = await apiRequest<SessionInfo[]>("/sessions");
+        sessions.value = await listSessions();
     } catch {
         loadError.value = true;
     } finally {
@@ -57,7 +58,10 @@ async function kick(item: SessionInfo) {
     }
 }
 
-onMounted(refresh);
+onMounted(() => {
+    // refresh 内部已兜底全部错误；void 标记挂载回调无未处理的异步结果
+    void refresh();
+});
 </script>
 
 <template>
