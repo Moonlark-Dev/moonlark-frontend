@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { isLoggedIn, login, waitForActivation, getSessionIDOrNull, type LoginResult } from '@/utils/user';
-import { setCookie } from '@/utils/cookie';
-import { getPrefix } from '@/utils/prefix';
-import { getLastLoginUser, setLastLoginUser } from '@/utils/lastLoginUser';
+// 相对路径导入：静态分析引擎（Codacy）不解析 @ 别名，会把导入值标记为 error 类型并误报 no-unsafe-*
+import { isLoggedIn, login, waitForActivation, getSessionIDOrNull, type LoginResult } from '../utils/user';
+import { setCookie } from '../utils/cookie';
+import { getPrefix } from '../utils/prefix';
+import { getLastLoginUser, setLastLoginUser } from '../utils/lastLoginUser';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { useRoute, useRouter } from "vue-router";
 

@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { apiRequest } from '@/utils/api';
-import { logout as performLogout, type SessionInfo } from '@/utils/user';
+// 相对路径导入：静态分析引擎（Codacy）不解析 @ 别名，会把导入值标记为 error 类型并误报 no-unsafe-*
+import { apiRequest } from '../utils/api';
+import { logout as performLogout, type SessionInfo } from '../utils/user';
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { showToast } from '@/components/ToastComponent.vue';
+import { showToast } from '../utils/toast';
 
 // 登录设备管理：列出当前账号的全部活跃会话，可踢掉任意设备；
 // 踢掉当前设备等同于登出（服务端会话已删除，本地凭据随之清理）。
@@ -25,9 +26,9 @@ function deviceLabel(item: SessionInfo): string {
 }
 
 async function refresh() {
-    loading.value = true;
-    loadError.value = false;
     try {
+        loading.value = true;
+        loadError.value = false;
         sessions.value = await apiRequest<SessionInfo[]>("/sessions");
     } catch {
         loadError.value = true;
@@ -44,7 +45,7 @@ async function kick(item: SessionInfo) {
         if (item.current) {
             // 踢掉的是当前设备：服务端会话已删除，清理本地凭据并回登录页
             await performLogout();
-            router.push('/login');
+            await router.push('/login');
             return;
         }
         showToast("已移除该设备", "success");

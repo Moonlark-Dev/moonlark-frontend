@@ -18,9 +18,9 @@ export function logout(): void {
 
 // ── 鉴权失败全局处理 ──
 // 会话过期/失效（401）时由 main.ts 注册的处理器统一跳转登录页；
-// api.ts 保持与路由解耦，避免循环依赖。
+// api.ts 保持与路由解耦，避免循环依赖。处理器不接收错误对象（当前仅 401 一种来源）。
 
-type AuthErrorHandler = (error: ApiError) => void;
+type AuthErrorHandler = () => void;
 
 let authErrorHandler: AuthErrorHandler | null = null;
 
@@ -29,9 +29,9 @@ export function setAuthErrorHandler(handler: AuthErrorHandler | null): void {
     authErrorHandler = handler;
 }
 
-function notifyAuthError(error: ApiError): void {
+function notifyAuthError(): void {
     try {
-        authErrorHandler?.(error);
+        authErrorHandler?.();
     } catch {
         // 处理器自身的异常不影响原请求的错误抛出
     }
@@ -75,7 +75,7 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     });
     if (!response.ok) {
         const error = new ApiError(response.status, response.statusText);
-        if (auth && response.status === 401) notifyAuthError(error); // 携带凭据仍 401：会话已失效
+        if (auth && response.status === 401) notifyAuthError(); // 携带凭据仍 401：会话已失效
         throw error;
     }
     return response.json();
@@ -114,7 +114,7 @@ export async function apiCheck(path: string, options: RequestOptions = {}): Prom
             },
             signal,
         });
-        if (response.status === 401) notifyAuthError(new ApiError(401, response.statusText));
+        if (response.status === 401) notifyAuthError();
         return response.ok;
     } catch (error) {
         if (isAbortError(error)) throw error;

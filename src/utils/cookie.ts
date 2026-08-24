@@ -29,7 +29,7 @@ export function getCookie(cName: string): string | undefined {
     const name = cName + "=";
     for (const item of document.cookie.split(";")) {
         const trim = item.trim();
-        if (trim.indexOf(name) === 0) {
+        if (trim.startsWith(name)) {
             try {
                 return decodeURIComponent(trim.substring(name.length));
             } catch {

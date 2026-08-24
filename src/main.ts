@@ -14,7 +14,8 @@ setColorScheme('#66ccff');
 setAuthErrorHandler(() => {
     const current = router.currentRoute.value;
     if (current.path === '/login') return;
-    router.push({ path: '/login', query: { redirect: current.fullPath } });
+    // void 标记：导航失败无需处理，避免未 await 的 Promise 告警
+    void router.push({ path: '/login', query: { redirect: current.fullPath } });
 });
 
 createApp(App).use(router).mount('#app');
