@@ -26,11 +26,12 @@ function deviceLabel(item: SessionInfo): string {
 }
 
 /** 拉取设备列表；任何失败都归为「加载失败」，由界面提示重试。 */
-async function refresh(): Promise<void> {
+async function refresh() {
     loading.value = true;
     loadError.value = false;
     try {
-        sessions.value = await listSessions();
+        const data = await listSessions();
+        sessions.value = data;
     } catch {
         loadError.value = true;
     } finally {
