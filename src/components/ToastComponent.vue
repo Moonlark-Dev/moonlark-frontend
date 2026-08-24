@@ -1,23 +1,10 @@
 <script lang="ts">
-// showToast 需要在组件外部导入使用，因此放在普通 <script> 块中导出
-import { defineComponent, ref } from "vue";
+// showToast 已拆分至 ../utils/toast（逻辑与视图分离）；
+// 此处保留再导出以兼容既有导入方，本组件只负责渲染。
+import { defineComponent } from "vue";
+import { messages } from "../utils/toast";
 
-interface ToastMessage {
-    id: number;
-    text: string;
-    type: "info" | "success" | "error";
-}
-
-const messages = ref<ToastMessage[]>([]);
-let nextId = 0;
-
-export function showToast(text: string, type: "info" | "success" | "error" = "info") {
-    const id = nextId++;
-    messages.value.push({ id, text, type });
-    setTimeout(() => {
-        messages.value = messages.value.filter((m) => m.id !== id);
-    }, 3000);
-}
+export { showToast } from "../utils/toast";
 
 export default defineComponent({
     name: "ToastComponent",
