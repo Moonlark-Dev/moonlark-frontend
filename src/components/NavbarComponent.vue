@@ -42,7 +42,7 @@ function navigateTo(page: string) {
 <template>
     <mdui-navigation-rail v-if="!props.isMobile" :value="activeValue" divider>
         <mdui-button-icon slot="top">
-            <mdui-avatar src="https://moonlark-wiki.itcdt.top//images/f/f8/Moonlark.png"></mdui-avatar>
+            <mdui-avatar src="/moonlark.png"></mdui-avatar>
         </mdui-button-icon>
         <mdui-fab size="small" icon="people--outlined" value="user" @click="navigateTo('user')" slot="top"></mdui-fab>
         <mdui-navigation-rail-item icon="home--outlined" value="home" @click="navigateTo('home')">主页
