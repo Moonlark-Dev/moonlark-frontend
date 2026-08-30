@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // 相对路径导入：静态分析引擎（Codacy）不解析 @ 别名，会把导入值标记为 error 类型并误报 no-unsafe-*
 import { isLoggedIn, login, waitForActivation, getSessionIDOrNull, type LoginResult } from '../utils/user';
+import { loginWithPasskey, passkeyErrorText, passkeySupported } from '../utils/passkey';
 import { setCookie } from '../utils/cookie';
 import { getPrefix } from '../utils/prefix';
 import { getLastLoginUser, setLastLoginUser } from '../utils/lastLoginUser';
@@ -13,10 +14,12 @@ const activateCode = ref("");
 const userID = ref<string | null>(getLastLoginUser() || null);
 const rememberMe = ref(false);
 const verifyInterval = ref(0);
+const passkeyBusy = ref(false);
 const router = useRouter();
 const route = useRoute();
 const loginError = ref("");
 let abortController: AbortController | null = null;
+let passkeyAbortController: AbortController | null = null;
 let tickId: number | undefined;
 
 function stopWaiting() {
@@ -83,6 +86,30 @@ async function getActivateCode() {
     }
 }
 
+async function loginWithPasskeyClick() {
+    if (passkeyBusy.value) return;
+    if (!passkeySupported()) {
+        loginError.value = "当前浏览器不支持 Passkey 登录（需要 HTTPS 环境）";
+        return;
+    }
+    loginError.value = "";
+    passkeyBusy.value = true;
+    passkeyAbortController = new AbortController();
+    try {
+        // 已输入用户 ID 时限定该用户的凭据；未输入则使用可发现凭据（浏览器选择）
+        const userIDValue = userID.value?.trim() || undefined;
+        await loginWithPasskey(userIDValue, rememberMe.value ? 30 : undefined, passkeyAbortController.signal);
+        if (userIDValue) setLastLoginUser(userIDValue);
+        await navigateAfterLogin();
+    } catch (error) {
+        const message = passkeyErrorText(error);
+        if (message) loginError.value = message;
+    } finally {
+        passkeyBusy.value = false;
+        passkeyAbortController = null;
+    }
+}
+
 function goBack() {
     stopWaiting();
     step.value = 0;
@@ -99,6 +126,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
     stopWaiting();
+    passkeyAbortController?.abort();
 });
 </script>
 
@@ -114,6 +142,11 @@ onUnmounted(() => {
             @change="rememberMe = ($event.target as HTMLInputElement).checked">30 天内免重新验证（记住此浏览器）</mdui-checkbox>
         <p></p>
         <mdui-button @click="getActivateCode()">确认</mdui-button>
+        &nbsp;
+        <mdui-button @click="loginWithPasskeyClick()" variant="tonal" :disabled="passkeyBusy">
+            <mdui-icon slot="icon" name="fingerprint"></mdui-icon>
+            {{ passkeyBusy ? "正在通过 Passkey 验证…" : "使用 Passkey 登录" }}
+        </mdui-button>
         &nbsp;
         <mdui-button @click="router.push('/')" variant="text">返回首页</mdui-button>
     </div>
