@@ -7,6 +7,7 @@ import SettingsView from "@/pages/SettingsView.vue";
 import RankingsView from "@/pages/RankingsView.vue";
 import HelpView from "@/pages/HelpView.vue";
 import AdminMenuPanelView from "@/pages/AdminMenuPanelView.vue";
+import AdminUpdatesView from "@/pages/AdminUpdatesView.vue";
 
 declare module 'vue-router' {
     interface RouteMeta {
@@ -37,6 +38,17 @@ export const routes: RouteRecordRaw[] = [
             title: "QQ 菜单/指令面板管理",
             description: "配置 QQ 自定义菜单与指令面板展示的指令",
             icon: "admin_panel_settings",
+        },
+    },
+    {
+        path: '/admin/updates',
+        component: AdminUpdatesView,
+        name: "admin-updates",
+        meta: {
+            admin: true,
+            title: "更新公告管理",
+            description: "发布会推送到聊天端的最新更新公告",
+            icon: "campaign",
         },
     }
 ];
