@@ -101,13 +101,13 @@ onMounted(async () => {
 					所选指令会作为单聊自定义菜单按钮与单聊/群聊指令面板元素下发，
 					菜单固定附带「帮助」与「在线帮助」两项。</p>
 				<mdui-card v-for="category of categories" v-bind:key="category.name" variant="outlined"
-						   class="category-card">
+							class="category-card">
 					<div class="category-content">
 						<h3>{{ category.name }}</h3>
 						<div class="command-list">
 							<mdui-checkbox v-for="command of category.commands" v-bind:key="command.name"
-										   :checked="isSelected(command.name)"
-										   @click.prevent="toggle(command.name)">
+											:checked="isSelected(command.name)"
+											@click.prevent="toggle(command.name)">
 								{{ command.name }} —— {{ command.description }}
 							</mdui-checkbox>
 						</div>

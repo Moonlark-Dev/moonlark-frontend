@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { getPrefix } from '@/utils/prefix';
-import { logout, requestBindMainAccount, type UserData } from '@/utils/user';
+import { logout, requestBindMainAccount } from '@/utils/user';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { showToast } from '@/components/ToastComponent.vue';
 
-const props = defineProps(['user']);
+defineProps(['user']);
 const router = useRouter();
-const user = ref<UserData>(props.user);
 const mainAccountID = ref("");
 const bindActivateCode = ref("");
 

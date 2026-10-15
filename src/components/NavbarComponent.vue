@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { setTheme } from 'mdui/functions/setTheme';
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import type { Theme } from "mdui/internal/theme";
 import { getCurrentUser, isLoggedIn, type UserData } from "@/utils/user";
