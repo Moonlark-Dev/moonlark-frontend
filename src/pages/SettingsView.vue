@@ -43,7 +43,7 @@ onMounted(async () => {
 		<mdui-card v-if="superuser" variant="outlined" class="card">
 			<h2>超级管理员</h2>
 			<mdui-button icon="admin_panel_settings" end-icon="arrow_forward"
-						 @click="router.push('/admin/menupanel')">QQ 菜单/指令面板管理
+							@click="router.push('/admin/menupanel')">QQ 菜单/指令面板管理
 			</mdui-button>
 		</mdui-card>
 	</div>

@@ -4,7 +4,7 @@ import { withVueTs, vueTsConfigs } from '@vue/eslint-config-typescript';
 
 export default withVueTs(
     {
-        ignores: ['dist/**', 'node_modules/**'],
+        ignores: ['dist/**', 'node_modules/**', '.eslintrc.cjs'],
     },
     js.configs.recommended,
     pluginVue.configs['flat/essential'],
